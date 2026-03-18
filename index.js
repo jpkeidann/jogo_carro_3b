@@ -1,8 +1,8 @@
 let des = document.getElementById('des').getContext('2d')
 
 let carroInimigo = new CarroInimigo(1300, 325, 80, 50, './img/carro_02_bg.png')
-let carroInimigo2 = new CarroInimigo(1500, 125, 80, 50, '/img/carro_03_bg.png')
-let carroInimigo3 = new CarroInimigo(1700, 400, 80, 50, '/img/carro_04_bg.png')
+let carroInimigo2 = new CarroInimigo(1700, 125, 80, 50, '/img/carro_03_bg.png')
+let carroInimigo3 = new CarroInimigo(2200, 400, 80, 50, '/img/carro_04_bg.png')
 let estrada = new Estrada(10, 345, 40, 10, 'white')
 let carro = new Carro(100, 325, 80, 50, '../img/carro_001_bg.png')
 // let medidaCarro = new Carro(100, 325, 85, 50, 'green')
@@ -25,11 +25,11 @@ let velocidadeCar = 1
 document.addEventListener('keydown', (e) => {
     motor.play()
     if (e.key === 'w' || e.key === 'ArrowUp') {
-        carro.dir = -1
+        carro.dir = -1.5
         carro.accel = velocidadeCar
     }
     if (e.key === 's' || e.key === 'ArrowDown') {
-        carro.dir = 1
+        carro.dir = 1.5
         carro.accel = velocidadeCar
     }
 })
@@ -51,18 +51,18 @@ function game_over() {
 function ver_fase() {
     if (carro.pontos > 20 && fase === 1) {
         fase = 2
-        carroInimigo.vel = 4
-        carroInimigo2.vel = 4
-        carroInimigo3.vel = 4
+        carroInimigo.vel = 8
+        carroInimigo2.vel = 8
+        carroInimigo3.vel = 8
     } else if (carro.pontos > 40 && fase === 2) {
         fase = 3
-        carroInimigo.vel = 6
-        carroInimigo2.vel = 6
-        carroInimigo3.vel = 6
+        carroInimigo.vel = 13
+        carroInimigo2.vel = 13
+        carroInimigo3.vel = 13
     }
 }
 
-document.addEventListener()
+// document.addEventListener()
 
 function colisao() {
     if (carro.colid(carroInimigo)) {

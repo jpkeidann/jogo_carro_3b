@@ -33,7 +33,7 @@ class Carro extends Obj{
     this.veloc += this.accel * this.dir
 
     // desaceleração:
-    this.veloc *= 0.9
+    this.veloc *= 0.85
 
     // limita velocidade
     const maxVel = 10
@@ -80,14 +80,12 @@ class Carro extends Obj{
         //carro_001_bg
         this.a = "./img/"+nome+this.frame+"_bg.png"
     }
-
-
     
 }
 
 class CarroInimigo extends Obj{
 
-    vel = 2
+    vel = 5
 
     recomeca(){
         this.x = 1300
