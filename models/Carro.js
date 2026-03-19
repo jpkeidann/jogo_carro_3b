@@ -99,7 +99,6 @@ class Carro extends Obj {
             h: this.h - 20
         }
     }
-
 }
 
 class CarroInimigo extends Obj {
@@ -114,7 +113,6 @@ class CarroInimigo extends Obj {
 
     //atributos para animação bonitinha
     projTempoMax = 60
-    projTempo = 0
 
     startX = 0
     startY = 0

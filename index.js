@@ -34,8 +34,7 @@ document.addEventListener('keydown', (e) => {
         carro.dir = 1.5
         carro.accel = velocidadeCar
     }
-    if (e.key === 'f'){
-        hitstop = 100
+    if (e.key === 'f' && carro.parryTempo == 0){
         carro.parry = true
         carro.parryTempo = 10 // tempo em que a colisão existe
     }
@@ -59,6 +58,7 @@ function colisaoParry() {
             p.y < inimigo.y + inimigo.h &&
             p.y + p.h > inimigo.y
         ) {
+            hitstop = 20
             inimigo.ativarProjetil()
         }
     }
@@ -177,7 +177,7 @@ function desenha() {
 function atualiza() {
     if(hitstop > 0){
         hitstop--
-        des.fillStyle = "rgba(255,255,255,10)"
+        des.fillStyle = "rgba(255,255,255,0.5)"
         des.fillRect(0, 0, 1200, 700)
     }else{
         des.clearRect
@@ -187,8 +187,8 @@ function atualiza() {
             carroInimigo.mov_car()
             carroInimigo2.mov_car()
             carroInimigo3.mov_car()
-            colisaoEntreInimigos()
             colisaoParry()
+            colisaoEntreInimigos()
             estrada.mov_est()
             colisao()
             pontuacao()
