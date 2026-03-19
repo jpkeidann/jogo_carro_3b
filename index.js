@@ -22,6 +22,8 @@ let fase = 1
 
 let velocidadeCar = 1
 
+let hitstop = 0
+
 document.addEventListener('keydown', (e) => {
     motor.play()
     if (e.key === 'w' || e.key === 'ArrowUp') {
@@ -32,6 +34,11 @@ document.addEventListener('keydown', (e) => {
         carro.dir = 1.5
         carro.accel = velocidadeCar
     }
+    if (e.key === 'f'){
+        hitstop = 100
+        carro.parry = true
+        carro.parryTempo = 10 // tempo em que a colisão existe
+    }
 })
 
 document.addEventListener('keyup', (e) => {
@@ -39,6 +46,57 @@ document.addEventListener('keyup', (e) => {
         carro.accel = 0
     }
 })
+
+function colisaoParry() {
+    if (!carro.parry) return
+
+    let p = carro.getParryBox()
+
+    function bate(inimigo){
+        if (
+            p.x < inimigo.x + inimigo.w &&
+            p.x + p.w > inimigo.x &&
+            p.y < inimigo.y + inimigo.h &&
+            p.y + p.h > inimigo.y
+        ) {
+            inimigo.ativarProjetil()
+        }
+    }
+
+    bate(carroInimigo)
+    bate(carroInimigo2)
+    bate(carroInimigo3)
+}
+
+function colisaoEntreInimigos(){
+    let inimigos = [carroInimigo, carroInimigo2, carroInimigo3]
+
+    for(let i = 0; i < inimigos.length; i++){
+        for(let j = i+1; j < inimigos.length; j++){
+            let a = inimigos[i]
+            let b = inimigos[j]
+
+            if(a.proj || b.proj){
+                if(
+                    a.x < b.x + b.w &&
+                    a.x + a.w > b.x &&
+                    a.y < b.y + b.h &&
+                    a.y + a.h > b.y
+                ){
+                    a.recomeca()
+                    b.recomeca()
+
+                    carro.pontos += 15 // recompensa extra
+                }
+            }
+        }
+    }
+}
+
+//animação bonitinha:
+function easeOutCubic(t){
+    return 1 - Math.pow(1 - t, 3)
+}
 
 function game_over() {
     if (carro.vida <= 0) {
@@ -62,9 +120,8 @@ function ver_fase() {
     }
 }
 
-// document.addEventListener()
-
 function colisao() {
+    if (!carro.parry && carro.colid(carroInimigo)) {
     if (carro.colid(carroInimigo)) {
         batida.play()
         carroInimigo.recomeca()
@@ -82,6 +139,7 @@ function colisao() {
         carro.vida -= 1
     }
     console.log('vida: ', carro.vida)
+    }
 }
 
 function pontuacao() {
@@ -100,7 +158,6 @@ function pontuacao() {
 }
 
 function desenha() {
-
     if (jogar) {
         estrada.des_quad()
         carroInimigo.des_carro()
@@ -114,21 +171,30 @@ function desenha() {
         t1.des_text('GAME OVER', 450, 350, 'yellow', '60px Arial')
         t2.des_text('Pontuação Final: ' + carro.pontos, 480, 400, 'white', '25px Arial')
     }
-
 }
 
+
 function atualiza() {
-    if (jogar) {
-        carro.mov_car()
-        carro.anim('carro_00')
-        carroInimigo.mov_car()
-        carroInimigo2.mov_car()
-        carroInimigo3.mov_car()
-        estrada.mov_est()
-        colisao()
-        pontuacao()
-        ver_fase()
-        game_over()
+    if(hitstop > 0){
+        hitstop--
+        des.fillStyle = "rgba(255,255,255,10)"
+        des.fillRect(0, 0, 1200, 700)
+    }else{
+        des.clearRect
+        if (jogar) {
+            carro.mov_car()
+            carro.anim('carro_00')
+            carroInimigo.mov_car()
+            carroInimigo2.mov_car()
+            carroInimigo3.mov_car()
+            colisaoEntreInimigos()
+            colisaoParry()
+            estrada.mov_est()
+            colisao()
+            pontuacao()
+            ver_fase()
+            game_over()
+        }
     }
 }
 
