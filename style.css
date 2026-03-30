@@ -1,20 +1,16 @@
-*{
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
-body{
-    background-color: #2b2b2b;
-    color: rgb(186, 186, 186);
+body {
+    overflow: hidden;
+    background: black;
 }
 
-canvas{
-    margin: auto;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(black, white);
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
 }
-
