@@ -46,11 +46,17 @@ let bg2 = new Background('./img/background3.png', 3, canvas.width, window.innerH
 
 let bg3 = new Background('./img/background1.png', 6, canvas.width, window.innerHeight * 0.6, canvas.height * 0.4)
 
-let inimigo = new Inimigo((window.innerWidth + 300), bg3.y + 75, 96, 96, './img/bolacha_00_bg.png')
-let inimigo2 = new Inimigo((window.innerWidth + 700), bg3.y + 175, 96, 96, '/img/bolacha_00_bg.png')
-let inimigo3 = new Inimigo((window.innerWidth + 1400), bg3.y + 305, 96, 96, '/img/bolacha_00_bg.png')
+let inimigo = new Inimigo((window.innerWidth + 300), bg3.y + 75, 96, 96, './img/bolacha_00.png')
+let inimigo2 = new Inimigo((window.innerWidth + 700), bg3.y + 175, 96, 96, '/img/bolacha_00.png')
+let inimigo3 = new Inimigo((window.innerWidth + 1400), bg3.y + 305, 96, 96, '/img/bolacha_00.png')
 let player = new Player(-200, bg3.y + 50, 128, 128, '../img/guto_01.png')
 let player2 = new Player(-200, bg3.y + 275, 128, 128, '../img/renato_00.png')
+
+player.hitbox = { x: 36, y: 44, w: 60, h: 48 }
+player2.hitbox = { x: 36, y: 44, w: 60, h: 48 }
+inimigo.hitbox = { x: 12, y: 18, w: 63, h: 57 }
+inimigo2.hitbox = { x: 12, y: 18, w: 63, h: 57 }
+inimigo3.hitbox = { x: 12, y: 18, w: 63, h: 57 }
 
 player.startX = 100
 player2.startX = 100
@@ -202,6 +208,11 @@ function iniciarTransicao() {
     player.x = -200
     player2.x = -200
 
+    player.dirX = 0
+    player.dirY = 0
+    player2.dirX = 0
+    player2.dirY = 0
+
     inimigo.recomeca()
     inimigo2.recomeca()
     inimigo3.recomeca()
@@ -209,28 +220,43 @@ function iniciarTransicao() {
 
 //INPUTS ------------------------------------------
 
+const keys = {}
+
 let jogar = true
 let fase = 1
 
 let velocidadeCar = 1
 
 document.addEventListener('keydown', (e) => {
-    // motor.play()
+    document.addEventListener('keydown', (e) => {
+        keys[e.key] = true
+    })
 
-    // Player 1 — WASD
-    if (e.key === 'w') { player.dir = -1.5; player.accel = velocidadeCar }
-    if (e.key === 's') { player.dir = 1.5; player.accel = velocidadeCar }
-
-    // Player 2 — Setas
-    if (e.key === 'ArrowUp') { player2.dir = -1.5; player2.accel = velocidadeCar }
-    if (e.key === 'ArrowDown') { player2.dir = 1.5; player2.accel = velocidadeCar }
+    document.addEventListener('keyup', (e) => {
+        keys[e.key] = false
+    })
 })
 
-document.addEventListener('keyup', (e) => {
-    if (e.key === 'w' || e.key === 's') player.accel = 0
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') player2.accel = 0
-})
+function controlarPlayers() {
 
+    // PLAYER 1
+    player.dirX = 0
+    player.dirY = 0
+
+    if (keys['w']) player.dirY = -1
+    if (keys['s']) player.dirY = 1
+    if (keys['a']) player.dirX = -1
+    if (keys['d']) player.dirX = 1
+
+    // PLAYER 2
+    player2.dirX = 0
+    player2.dirY = 0
+
+    if (keys['ArrowUp']) player2.dirY = -1
+    if (keys['ArrowDown']) player2.dirY = 1
+    if (keys['ArrowLeft']) player2.dirX = -1
+    if (keys['ArrowRight']) player2.dirX = 1
+}
 
 //CONTROLADOR DE MORTE ------------------------------
 function game_over() {
@@ -265,7 +291,8 @@ function ver_fase() {
 function colisao() {
     // Player 1
     [inimigo, inimigo2, inimigo3].forEach(inimigo => {
-        if (player.colid(inimigo, 36, 44, 60, 48) && player.vida > 0) {
+
+        if (player.colid(inimigo) && player.vida > 0) {
             inimigo.recomeca()
             player.vida -= 1
         }
@@ -273,7 +300,7 @@ function colisao() {
 
         // Player 2
         ;[inimigo, inimigo2, inimigo3].forEach(inimigo => {
-            if (player2.colid(inimigo, 36, 44, 60, 48) && player2.vida > 0) {
+            if (player2.colid(inimigo) && player2.vida > 0) {
                 inimigo.recomeca()
                 player2.vida -= 1
             }
@@ -326,18 +353,23 @@ function desenha() {
 function atualiza() {
     if (estado === 'jogando') {
 
+        controlarPlayers()
+
         bg1.mov()
         bg2.mov()
         bg3.mov()
 
         let limiteCima = bg3.y
         let limiteBaixo = bg3.y + bg3.h - player.h
+        let limiteEsq = 0
+        let limiteDir = canvas.width
+
 
         if (player.vida > 0) {
-            player.mov_player(limiteCima, limiteBaixo)
+            player.mov_player(limiteCima, limiteBaixo, limiteEsq, limiteDir)
         }
         if (player2.vida > 0) {
-            player2.mov_player(limiteCima, limiteBaixo)
+            player2.mov_player(limiteCima, limiteBaixo, limiteEsq, limiteDir)
         }
 
         player2.anim('renato_0', 1, 7)
@@ -360,6 +392,8 @@ function atualiza() {
 //LOOP PRINCIPAL --------------------------------
 function main() {
     des.clearRect(0, 0, canvas.width, canvas.height)
+
+    controlarPlayers()
 
     if (estado === 'transicao') {
         desenhaTransicao()

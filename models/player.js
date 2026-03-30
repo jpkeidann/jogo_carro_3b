@@ -5,7 +5,15 @@ class Obj {
         this.w = w
         this.h = h
         this.a = a
+        
+        this.hitbox = {
+            x: 0,
+            y: 0,
+            w: w,
+            h: h
+        }
     }
+
 
     des_player() {
         let img = new Image()
@@ -22,42 +30,52 @@ class Obj {
 
 class Player extends Obj {
 
-    accel = 0
-    veloc = 0
-    dir = 0
+    speed = 8
+    dirX = 0
+    dirY = 0
+
     vida = 5
     frame = 0
     pontos = 0
     tempo = 0
 
-    mov_player(limiteCima, limiteBaixo) {
-        this.veloc += this.accel * this.dir
 
-        // desaceleração
-        this.veloc *= 0.85
+    mov_player(limiteCima, limiteBaixo, limiteEsq, limiteDir) {
 
-        // limite de velocidade
-        const maxVel = 10
-        if (this.veloc > maxVel) this.veloc = maxVel
-        if (this.veloc < -maxVel) this.veloc = -maxVel
+        // normalizar diagonal
+        let dx = this.dirX
+        let dy = this.dirY
 
-        this.y += this.veloc
+        if (dx !== 0 && dy !== 0) {
+            dx *= 0.8
+            dy *= 0.8
+        }
 
-        // limites
+        // aplicar movimento direto
+        this.x += dx * this.speed
+        this.y += dy * this.speed
+
+        // limites Y
         if (this.y < limiteCima - 60) {
             this.y = limiteCima - 60
-            this.veloc = 0
         } else if (this.y > limiteBaixo - 30) {
             this.y = limiteBaixo - 30
-            this.veloc = 0
+        }
+
+        // limites X
+        if (this.x < limiteEsq) {
+            this.x = limiteEsq
+        } else if (this.x > limiteDir - this.w) {
+            this.x = limiteDir - this.w
         }
     }
 
-    colid(objeto, colid_x, colid_y, colid_w, colid_h) {
-        if (((this.x + colid_x) < objeto.x + objeto.w) &&
-            ((this.x + colid_x) + colid_w > objeto.x) &&
-            ((this.y + colid_y) < objeto.y + objeto.h) &&
-            ((this.y + colid_y) + colid_h > objeto.y)) {
+    colid(objeto) {
+        if ((this.x + this.hitbox.x < objeto.x + objeto.hitbox.x + objeto.hitbox.w) &&
+        (this.x + this.hitbox.x + this.hitbox.w > objeto.x + objeto.hitbox.x) &&
+        (this.y + this.hitbox.y < objeto.y + objeto.hitbox.y + objeto.hitbox.h) &&
+        (this.y + this.hitbox.y + this.hitbox.h > objeto.y + objeto.hitbox.y)) {
+                console.log(objeto)
             return true
         } else {
             return false
