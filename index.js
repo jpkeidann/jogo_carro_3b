@@ -46,9 +46,9 @@ let bg2 = new Background('./img/background3.png', 3, canvas.width, window.innerH
 
 let bg3 = new Background('./img/background1.png', 6, canvas.width, window.innerHeight * 0.6, canvas.height * 0.4)
 
-let inimigo = new Inimigo((window.innerWidth + 300), bg3.y + 75, 80, 50, './img/carro_02_bg.png')
-let inimigo2 = new Inimigo((window.innerWidth + 700), bg3.y + 175, 80, 50, '/img/carro_03_bg.png')
-let inimigo3 = new Inimigo((window.innerWidth + 1400), bg3.y + 305, 80, 50, '/img/carro_04_bg.png')
+let inimigo = new Inimigo((window.innerWidth + 300), bg3.y + 75, 96, 96, './img/bolacha_00_bg.png')
+let inimigo2 = new Inimigo((window.innerWidth + 700), bg3.y + 175, 96, 96, '/img/bolacha_00_bg.png')
+let inimigo3 = new Inimigo((window.innerWidth + 1400), bg3.y + 305, 96, 96, '/img/bolacha_00_bg.png')
 let player = new Player(-200, bg3.y + 50, 128, 128, '../img/guto_01.png')
 let player2 = new Player(-200, bg3.y + 275, 128, 128, '../img/renato_00.png')
 
@@ -75,8 +75,8 @@ fadeSprite.src = './img/fade.png' // spritesheet
 let fadeFrame = 0
 let fadeTimer = 0
 
-let fadeFrames = 13   // 🔥 MUDE AQUI (quantidade de frames)
-let fadeSpeed = 5      // 🔥 MUDE AQUI (velocidade)
+let fadeFrames = 13
+let fadeSpeed = 5
 let fadeFinalizado = false
 
 let countImgs = [
@@ -342,6 +342,9 @@ function atualiza() {
 
         player2.anim('renato_0', 1, 7)
         player.anim('guto_0', 6, 3)
+        inimigo.anim('bolacha_0', 3, 3)
+        inimigo2.anim('bolacha_0', 3, 3)
+        inimigo3.anim('bolacha_0', 3, 3)
 
         inimigo.mov_car()
         inimigo2.mov_car()

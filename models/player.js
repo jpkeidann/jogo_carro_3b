@@ -89,6 +89,8 @@ class Player extends Obj {
 class Inimigo extends Obj {
     //velocidade de carro:
     vel = 5
+    frame = 0
+    tempo = 0
 
     recomeca() {
         this.x = canvas.width + Math.random() * 300
@@ -100,6 +102,19 @@ class Inimigo extends Obj {
 
     mov_car() {
         this.x -= this.vel
+    }
+
+    anim(nome, frame_count, frame_time) {
+        this.tempo += 1
+        if (this.tempo > frame_time) {
+            this.tempo = 0
+            this.frame += 1
+        }
+        if (this.frame > frame_count) {
+            this.frame = 0
+        }
+        //carro_001_bg
+        this.a = "./img/" + nome + this.frame + ".png"
     }
 }
 
