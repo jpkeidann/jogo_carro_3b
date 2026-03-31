@@ -320,7 +320,7 @@ function ver_fase() {
         balas = [];
 
         fase = 3
-sssssssssssssssssz1
+
         inimigos.forEach(inimigo => {
             inimigo.vel = 13
         })
