@@ -122,8 +122,8 @@ class Inimigo extends Obj {
 
     recomeca() {
         this.x = canvas.width + Math.random() * 300
-        let minY = bg3.y
-        let maxY = bg3.y + bg3.h - this.h
+        let minY = bg1.y
+        let maxY = bg1.y + bg1.h - this.h
 
         this.y = Math.random() * (maxY - minY) + minY
     }

@@ -15,16 +15,16 @@ window.addEventListener('resize', () => {
 
     // atualizar tamanhos
     bg1.w = canvas.width
-    bg1.h = canvas.height * 0.4
-    bg1.y = 0
+    bg1.h = canvas.height * 0.6
+    bg1.y = canvas.height * 0.4
 
     bg2.w = canvas.width
-    bg2.h = canvas.height * 0.3
-    bg2.y = canvas.height * 0.1
+    bg2.h = canvas.height * 0.4
+    bg2.y = 0
 
     bg3.w = canvas.width
-    bg3.h = canvas.height * 0.6
-    bg3.y = canvas.height * 0.4
+    bg3.h = canvas.height * 0.3
+    bg3.y = canvas.height * 0.1
 
     bg1.reset()
     bg2.reset()
@@ -40,17 +40,17 @@ des.mozImageSmoothingEnabled = false;
 
 // OBJETOS ------------------------------------------
 
-let bg1 = new Background('./img/background2.png', 1, canvas.width, window.innerHeight * 0.4)
+let bg1 = new Background('./img/background1.png', 6, canvas.width, window.innerHeight * 0.6, canvas.height * 0.4)
 
-let bg2 = new Background('./img/background3.png', 3, canvas.width, window.innerHeight * 0.3, canvas.height * 0.1)
+let bg2 = new Background('./img/background2.png', 1, canvas.width, window.innerHeight * 0.4)
 
-let bg3 = new Background('./img/background1.png', 6, canvas.width, window.innerHeight * 0.6, canvas.height * 0.4)
+let bg3 = new Background('./img/background3.png', 3, canvas.width, window.innerHeight * 0.3, canvas.height * 0.1)
 
-let inimigo = new Inimigo((window.innerWidth + 300), bg3.y + 75, 96, 96, './img/bolacha_00.png')
-let inimigo2 = new Inimigo((window.innerWidth + 700), bg3.y + 175, 96, 96, '/img/bolacha_00.png')
-let inimigo3 = new Inimigo((window.innerWidth + 1400), bg3.y + 305, 96, 96, '/img/bolacha_00.png')
-let player = new Player(-200, bg3.y + 50, 128, 128, '../img/guto_01.png')
-let player2 = new Player(-200, bg3.y + 275, 128, 128, '../img/renato_00.png')
+let inimigo = new Inimigo((window.innerWidth + 300), bg1.y + 75, 96, 96, './img/bolacha_00.png')
+let inimigo2 = new Inimigo((window.innerWidth + 700), bg1.y + 175, 96, 96, './img/bolacha_00.png')
+let inimigo3 = new Inimigo((window.innerWidth + 1400), bg1.y + 305, 96, 96, './img/bolacha_00.png')
+let player = new Player(-200, bg1.y + 50, 128, 128, '../img/guto_01.png')
+let player2 = new Player(-200, bg1.y + 275, 128, 128, '../img/renato_00.png')
 
 player.hitbox = { x: 36, y: 44, w: 60, h: 48 }
 player2.hitbox = { x: 36, y: 44, w: 60, h: 48 }
@@ -60,22 +60,24 @@ inimigo3.hitbox = { x: 12, y: 18, w: 63, h: 57 }
 
 const fasesConfig = {
     1: {
-        bg1: './img/background2.png',
-        bg2: './img/background3.png',
-        bg3: './img/background1.png'
+        bg1: './img/background1.png',
+        bg2: './img/background2.png',
+        bg3: './img/background3.png',
+        bg2H: window.innerHeight * 0.4
     },
     2: {
-        bg1: './img/backgroundD2.png',
-        bg2: './img/backgroundD3.png',
-        bg3: './img/backgroundD1.png'
+        bg2: './img/backgroundD2.png',
+        bg3: './img/backgroundD3.png',
+        bg1: './img/backgroundD1.png',
+        bg2H: window.innerHeight * 0.4
     },
     3: {
-        bg1: './img/backgroundN2.png',
-        bg2: './img/backgroundN3.png',
-        bg3: './img/backgroundN1.png'
+        bg1: './img/backgroundN1.png',
+        bg2: './img/backgroundN2.png',
+        bg3: './img/backgroundN3.png',
+        bg2H: window.innerHeight * 0.6
     }
 }
-
 
 player.startX = 100
 player2.startX = 100
@@ -167,15 +169,19 @@ function animacaoTransicao() {
         }
     }
 
-    player.anim('guto_0', 6, 3)
-    player2.anim('renato_0', 1, 7)
+    if (player.vida > 0) {
+        player.anim('guto_0', 6, 3)
+    }
+    if (player2.vida > 0) {
+        player2.anim('renato_0', 1, 7)
+    }
 }
 
 function desenhaTransicao() {
     // fundo
+    bg2.draw()
     bg1.draw()
     bg3.draw()
-    bg2.draw()
 
     // largura de cada frame do spritesheet
     if (!fadeSprite.complete) return
@@ -289,8 +295,17 @@ function game_over() {
 }
 
 //CONTROLADOR DE FASES --------------------------------
+function trocar_Background() {
+    bg1.img.src = fasesConfig[fase].bg1
+    bg2.img.src = fasesConfig[fase].bg2
+    bg3.img.src = fasesConfig[fase].bg3
+    bg2.h = fasesConfig[fase].bg2H
+}
+
 function ver_fase() {
     if ((player.pontos + player2.pontos) > 200 && fase === 1) {
+        balas = [];
+
         fase = 2
 
         inimigos.forEach(inimigo => {
@@ -298,21 +313,22 @@ function ver_fase() {
         })
 
         iniciarTransicao()
-        bg1.img.src = fasesConfig[fase].bg1
-        bg2.img.src = fasesConfig[fase].bg2
-        bg3.img.src = fasesConfig[fase].bg3
+
+        trocar_Background()
 
     } else if ((player.pontos + player2.pontos) > 400 && fase === 2) {
-        fase = 3
+        balas = [];
 
+        fase = 3
+sssssssssssssssssz1
         inimigos.forEach(inimigo => {
             inimigo.vel = 13
         })
 
         iniciarTransicao()
-        bg1.img.src = fasesConfig[fase].bg1
-        bg2.img.src = fasesConfig[fase].bg2
-        bg3.img.src = fasesConfig[fase].bg3
+
+        trocar_Background()
+
     }
 }
 
@@ -392,9 +408,9 @@ function controlarAtaques() {
 //DESENHO DA TELA --------------------------------
 function desenha() {
     if (jogar) {
-        bg1.draw()
-        bg3.draw()
         bg2.draw()
+        bg3.draw()
+        bg1.draw()
 
         inimigos.forEach(inimigo => {
             inimigo.des_player()
@@ -423,13 +439,12 @@ function desenha() {
 //ATUALIZAÇÂO DO JOGO --------------------------------
 function atualiza() {
     if (estado === 'jogando') {
-
         bg1.mov()
         bg2.mov()
         bg3.mov()
 
-        let limiteCima = bg3.y
-        let limiteBaixo = bg3.y + bg3.h - player.h
+        let limiteCima = bg1.y
+        let limiteBaixo = bg1.y + bg1.h - player.h
         let limiteEsq = 0
         let limiteDir = canvas.width
 
