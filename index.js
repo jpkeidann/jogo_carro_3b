@@ -58,6 +58,25 @@ inimigo.hitbox = { x: 12, y: 18, w: 63, h: 57 }
 inimigo2.hitbox = { x: 12, y: 18, w: 63, h: 57 }
 inimigo3.hitbox = { x: 12, y: 18, w: 63, h: 57 }
 
+const fasesConfig = {
+    1: {
+        bg1: './img/background2.png',
+        bg2: './img/background3.png',
+        bg3: './img/background1.png'
+    },
+    2: {
+        bg1: './img/backgroundD2.png',
+        bg2: './img/backgroundD3.png',
+        bg3: './img/backgroundD1.png'
+    },
+    3: {
+        bg1: './img/backgroundN2.png',
+        bg2: './img/backgroundN3.png',
+        bg3: './img/backgroundN1.png'
+    }
+}
+
+
 player.startX = 100
 player2.startX = 100
 
@@ -69,6 +88,11 @@ let fase_txt = new Text()
 
 
 r = new Audio('./img/motor.wav')
+
+// ARRAYS ------------------------------------------
+let balas = []
+let ataques = []
+let inimigos = [inimigo, inimigo2, inimigo3]
 
 //INTRO ------------------------------------------
 
@@ -213,9 +237,9 @@ function iniciarTransicao() {
     player2.dirX = 0
     player2.dirY = 0
 
-    inimigo.recomeca()
-    inimigo2.recomeca()
-    inimigo3.recomeca()
+    inimigos.forEach(inimigo => {
+        inimigo.recomeca()
+    })
 }
 
 //INPUTS ------------------------------------------
@@ -227,14 +251,13 @@ let fase = 1
 
 let velocidadeCar = 1
 
-document.addEventListener('keydown', (e) => {
-    document.addEventListener('keydown', (e) => {
-        keys[e.key] = true
-    })
 
-    document.addEventListener('keyup', (e) => {
-        keys[e.key] = false
-    })
+document.addEventListener('keydown', (e) => {
+    keys[e.key] = true
+})
+
+document.addEventListener('keyup', (e) => {
+    keys[e.key] = false
 })
 
 function controlarPlayers() {
@@ -267,30 +290,36 @@ function game_over() {
 
 //CONTROLADOR DE FASES --------------------------------
 function ver_fase() {
-    if (player.pontos > 20 && fase === 1) {
+    if ((player.pontos + player2.pontos) > 200 && fase === 1) {
         fase = 2
 
-        inimigo.vel = 8
-        inimigo2.vel = 8
-        inimigo3.vel = 8
+        inimigos.forEach(inimigo => {
+            inimigo.vel = 8
+        })
 
         iniciarTransicao()
+        bg1.img.src = fasesConfig[fase].bg1
+        bg2.img.src = fasesConfig[fase].bg2
+        bg3.img.src = fasesConfig[fase].bg3
 
-    } else if (player.pontos > 40 && fase === 2) {
+    } else if ((player.pontos + player2.pontos) > 400 && fase === 2) {
         fase = 3
 
-        inimigo.vel = 13
-        inimigo2.vel = 13
-        inimigo3.vel = 13
+        inimigos.forEach(inimigo => {
+            inimigo.vel = 13
+        })
 
         iniciarTransicao()
+        bg1.img.src = fasesConfig[fase].bg1
+        bg2.img.src = fasesConfig[fase].bg2
+        bg3.img.src = fasesConfig[fase].bg3
     }
 }
 
 //CONTROLADOR DE COLISÂO --------------------------------
 function colisao() {
     // Player 1
-    [inimigo, inimigo2, inimigo3].forEach(inimigo => {
+    inimigos.forEach(inimigo => {
 
         if (player.colid(inimigo) && player.vida > 0) {
             inimigo.recomeca()
@@ -298,26 +327,66 @@ function colisao() {
         }
     })
 
-        // Player 2
-        ;[inimigo, inimigo2, inimigo3].forEach(inimigo => {
-            if (player2.colid(inimigo) && player2.vida > 0) {
-                inimigo.recomeca()
-                player2.vida -= 1
-            }
-        })
-}
-
-
-//CONTROLADOR DE PONTOS --------------------------------
-function pontuacao() {
-    // Inimigos que saem da tela dão ponto para quem estiver vivo
-    ;[inimigo, inimigo2, inimigo3].forEach(inimigo => {
-        if (player.point(inimigo)) {
-            if (player.vida > 0) player.pontos += 5
-            if (player2.vida > 0) player2.pontos += 5
+    // Player 2
+    inimigos.forEach(inimigo => {
+        if (player2.colid(inimigo) && player2.vida > 0) {
             inimigo.recomeca()
+            player2.vida -= 1
         }
     })
+}
+
+//ATAQUES ----------------------------------------
+
+function atualizarBalas() {
+    balas.forEach((bala) => {
+        bala.mov()
+
+        inimigos.forEach(inimigo => {
+            if (bala.colid(inimigo) && inimigo.invencivel === 0) {
+                inimigo.levarDano(1)
+                bala.ativa = false
+                player.pontos += 5
+            }
+        })
+    })
+
+    balas = balas.filter(b => b.ativa)
+}
+
+function atualizarEspada() {
+    ataques.forEach((atk) => {
+        atk.update()
+
+        inimigos.forEach(inimigo => {
+            if (atk.colid(inimigo) && inimigo.invencivel === 0) {
+                inimigo.levarDano(1.5)
+                player2.pontos += 5
+            }
+        })
+    })
+
+    ataques = ataques.filter(a => a.ativa)
+}
+
+function controlarAtaques() {
+
+    // Player 1 (tiro)
+    if (keys[' '] && player.cooldown === 0 && player.vida > 0) {
+        balas.push(new Bala(player.x + player.w, player.y + 40))
+        player.cooldown = player.cooldownMax
+    }
+
+    // Player 2 (espada)
+    if (keys['Enter'] && player2.cooldown === 0 && player2.vida > 0) {
+        let atk = new AtaqueEspada(player2.x, player2.y, './img/espada.png')
+
+        atk.flip = Math.random() > 0.5
+
+        ataques.push(atk)
+
+        player2.cooldown = player2.cooldownMax
+    }
 }
 
 //DESENHO DA TELA --------------------------------
@@ -327,12 +396,15 @@ function desenha() {
         bg3.draw()
         bg2.draw()
 
-        inimigo.des_player()
-        inimigo2.des_player()
-        inimigo3.des_player()
+        inimigos.forEach(inimigo => {
+            inimigo.des_player()
+        })
 
-        if (player.vida > 0) player.des_player()
-        if (player2.vida > 0) player2.des_player()
+        if (player.vida > 0) { player.des_player() }
+        if (player2.vida > 0) { player2.des_player() }
+
+        balas.forEach(b => b.draw())
+        ataques.forEach(a => a.draw())
 
         t2.des_text('P1 Vidas: ' + player.vida, 40, 40, 'red', '26px Arial')
         t1.des_text('P1 Pontos: ' + player.pontos, 40, 70, 'yellow', '22px Arial')
@@ -348,12 +420,9 @@ function desenha() {
     }
 }
 
-
-//ATUALIZAÇÂO DA FÍSICA --------------------------------
+//ATUALIZAÇÂO DO JOGO --------------------------------
 function atualiza() {
     if (estado === 'jogando') {
-
-        controlarPlayers()
 
         bg1.mov()
         bg2.mov()
@@ -364,6 +433,7 @@ function atualiza() {
         let limiteEsq = 0
         let limiteDir = canvas.width
 
+        controlarAtaques()
 
         if (player.vida > 0) {
             player.mov_player(limiteCima, limiteBaixo, limiteEsq, limiteDir)
@@ -372,18 +442,31 @@ function atualiza() {
             player2.mov_player(limiteCima, limiteBaixo, limiteEsq, limiteDir)
         }
 
+        if (player.cooldown > 0) player.cooldown--
+        if (player2.cooldown > 0) player2.cooldown--
+
+        inimigos.forEach(inimigo => {
+            if (player.point(inimigo)) {
+                inimigo.recomeca()
+            }
+        })
+
+
         player2.anim('renato_0', 1, 7)
         player.anim('guto_0', 6, 3)
-        inimigo.anim('bolacha_0', 3, 3)
-        inimigo2.anim('bolacha_0', 3, 3)
-        inimigo3.anim('bolacha_0', 3, 3)
 
-        inimigo.mov_car()
-        inimigo2.mov_car()
-        inimigo3.mov_car()
+        inimigos.forEach(inimigo => {
+            inimigo.anim('bolacha_0', 3, 3)
+        })
+
+        atualizarBalas()
+        atualizarEspada()
+
+        inimigos.forEach(inimigo => {
+            inimigo.mov_car()
+        })
 
         colisao()
-        pontuacao()
         ver_fase()
         game_over()
     }
