@@ -91,6 +91,7 @@ let fase_txt = new Text()
 
 r = new Audio('./img/motor.wav')
 
+
 // ARRAYS ------------------------------------------
 let balas = []
 let ataques = []
@@ -98,8 +99,11 @@ let inimigos = [inimigo, inimigo2, inimigo3]
 
 //INTRO ------------------------------------------
 
+//fadein
 let estado = 'transicao'
 let tempoTransicao = 0
+
+let travarPlayers = false
 
 let fadeSprite = new Image()
 fadeSprite.src = './img/fade.png' // spritesheet
@@ -248,6 +252,142 @@ function iniciarTransicao() {
     })
 }
 
+
+//fadeout -------
+
+let fimDeFase = false
+let tempoVitoria = 0
+let mostrandoVitoria = false
+let playersSaindo = false
+let fadeOut = false
+let faseDestino = 1
+
+let imgVitoria = new Image()
+imgVitoria.src = './img/vitoria.png' // TROCA DEPOIS
+
+let inimigosRestantes = []
+
+function iniciarFimDeFase(proximaFase) {
+    fimDeFase = true
+    estado = 'finalFase'
+
+    faseDestino = proximaFase
+
+    // trava inimigos atuais
+    inimigosRestantes = [...inimigos]
+
+    // impede respawn
+    inimigos.forEach(i => {
+        i.recomeca = function () { } // desativa respawn
+    })
+}
+
+function atualizaFimDeFase() {
+    // inimigos continuam andando
+    inimigosRestantes.forEach(i => i.mov_car())
+
+    // remove inimigos que saíram da tela
+    inimigosRestantes = inimigosRestantes.filter(i => i.x + i.w > 0 && i.vida > 0)
+
+    // quando acabar todos
+    if (inimigosRestantes.length === 0 && !mostrandoVitoria) {
+        mostrandoVitoria = true
+        tempoVitoria = 0
+
+        travarPlayers = true
+    }
+
+    // tempo da tela de vitória
+    if (mostrandoVitoria && !playersSaindo) {
+        tempoVitoria++
+
+        if (tempoVitoria > 120) { // ~2 segundos
+            playersSaindo = true
+        }
+    }
+
+    // players saindo
+    if (playersSaindo && !fadeOut) {
+        player.x += 5
+        player2.x += 5
+
+        if (player.x > canvas.width && player2.x > canvas.width) {
+            fadeOut = true
+            fadeFrame = fadeFrames - 1 // começa do final
+        }
+    }
+
+    // fade reverso
+    if (fadeOut) {
+        fadeTimer++
+        if (fadeTimer > fadeSpeed) {
+            fadeTimer = 0
+            fadeFrame--
+        }
+
+        if (fadeFrame <= 0) {
+            proximaFase()
+            travarPlayers = false
+        }
+    }
+}
+
+function desenharFadeOut() {
+    if (estado === 'finalFase') {
+
+        if (mostrandoVitoria) {
+            let w = 300
+            let h = 150
+
+            des.drawImage(
+                imgVitoria,
+                canvas.width / 2 - w / 2,
+                canvas.height / 2 - h / 2,
+                w,
+                h
+            )
+        }
+
+        // fade reverso
+        if (fadeOut) {
+            let frameW = fadeSprite.width / fadeFrames
+
+            des.drawImage(
+                fadeSprite,
+                frameW * fadeFrame, 0,
+                frameW, fadeSprite.height,
+                0, 0,
+                canvas.width, canvas.height
+            )
+        }
+    }
+}
+
+function proximaFase() {
+    fase = faseDestino
+
+    fimDeFase = false
+    mostrandoVitoria = false
+    playersSaindo = false
+    fadeOut = false
+
+    balas = []
+    ataques = []
+
+    inimigos.forEach(inimigo => {
+        inimigo.recomeca = Inimigo.prototype.recomeca // restaura função
+        inimigo.recomeca()
+    })
+
+    if (fase === 2) {
+        inimigos.forEach(i => i.vel = 8)
+    } else if (fase === 3) {
+        inimigos.forEach(i => i.vel = 13)
+    }
+
+    trocar_Background()
+    iniciarTransicao()
+}
 //INPUTS ------------------------------------------
 
 const keys = {}
@@ -303,32 +443,11 @@ function trocar_Background() {
 }
 
 function ver_fase() {
-    if ((player.pontos + player2.pontos) > 200 && fase === 1) {
-        balas = [];
-
-        fase = 2
-
-        inimigos.forEach(inimigo => {
-            inimigo.vel = 8
-        })
-
-        iniciarTransicao()
-
-        trocar_Background()
-
-    } else if ((player.pontos + player2.pontos) > 400 && fase === 2) {
-        balas = [];
-
-        fase = 3
-
-        inimigos.forEach(inimigo => {
-            inimigo.vel = 13
-        })
-
-        iniciarTransicao()
-
-        trocar_Background()
-
+    if ((player.pontos + player2.pontos) > 200 && fase === 1 && !fimDeFase) {
+        iniciarFimDeFase(2)
+    }
+    else if ((player.pontos + player2.pontos) > 400 && fase === 2 && !fimDeFase) {
+        iniciarFimDeFase(3)
     }
 }
 
@@ -416,6 +535,7 @@ function desenha() {
             inimigo.des_player()
         })
 
+
         if (player.vida > 0) { player.des_player() }
         if (player2.vida > 0) { player2.des_player() }
 
@@ -429,6 +549,8 @@ function desenha() {
         t4.des_text('P2 Pontos: ' + player2.pontos, 900, 70, 'lime', '22px Arial')
 
         fase_txt.des_text('Fase: ' + fase, 550, 40, 'white', '26px Arial')
+
+        desenharFadeOut()
     } else {
         t1.des_text('GAME OVER', 420, 300, 'yellow', '60px Arial')
         t3.des_text('P1: ' + player.pontos + ' pts', 430, 420, 'red', '25px Arial')
@@ -474,6 +596,8 @@ function atualiza() {
             inimigo.anim('bolacha_0', 3, 3)
         })
 
+
+
         atualizarBalas()
         atualizarEspada()
 
@@ -484,6 +608,46 @@ function atualiza() {
         colisao()
         ver_fase()
         game_over()
+    } else if (fimDeFase) {
+
+        if (!travarPlayers) {
+
+            bg1.mov()
+            bg2.mov()
+            bg3.mov()
+
+            let limiteCima = bg1.y
+            let limiteBaixo = bg1.y + bg1.h - player.h
+            let limiteEsq = 0
+            let limiteDir = canvas.width
+
+            controlarAtaques()
+
+            if (player.vida > 0) {
+                player.mov_player(limiteCima, limiteBaixo, limiteEsq, limiteDir)
+            }
+
+            if (player2.vida > 0) {
+                player2.mov_player(limiteCima, limiteBaixo, limiteEsq, limiteDir)
+            }
+
+            
+            inimigos.forEach(inimigo => {
+                inimigo.anim('bolacha_0', 3, 3)
+            })
+
+            atualizarBalas()
+            atualizarEspada()
+
+            colisao()
+            game_over()
+
+            if (player.cooldown > 0) player.cooldown--
+            if (player2.cooldown > 0) player2.cooldown--
+        }
+
+        atualizaFimDeFase()
+        return
     }
 }
 
