@@ -255,71 +255,36 @@ function iniciarTransicao() {
 
 //fadeout -------
 
-let fimDeFase = false
 let tempoVitoria = 0
 let mostrandoVitoria = false
-let playersSaindo = false
 let fadeOut = false
 let faseDestino = 1
 
 let imgVitoria = new Image()
-imgVitoria.src = './img/vitoria.png' // TROCA DEPOIS
-
-let inimigosRestantes = []
+imgVitoria.src = './img/vitoria.png'
 
 function iniciarFimDeFase(proximaFase) {
-    fimDeFase = true
     estado = 'finalFase'
 
     faseDestino = proximaFase
 
-    // trava inimigos atuais
-    inimigosRestantes = [...inimigos]
+    mostrandoVitoria = true
+    tempoVitoria = 0
 
-    // impede respawn
-    inimigos.forEach(i => {
-        i.recomeca = function () { } // desativa respawn
-    })
+    fadeOut = false
+    fadeFrame = fadeFrames - 1
 }
 
 function atualizaFimDeFase() {
-    // inimigos continuam andando
-    inimigosRestantes.forEach(i => i.mov_car())
+    tempoVitoria++
 
-    // remove inimigos que saíram da tela
-    inimigosRestantes = inimigosRestantes.filter(i => i.x + i.w > 0 && i.vida > 0)
-
-    // quando acabar todos
-    if (inimigosRestantes.length === 0 && !mostrandoVitoria) {
-        mostrandoVitoria = true
-        tempoVitoria = 0
-
-        travarPlayers = true
+    if (tempoVitoria > 120 && !fadeOut) {
+        fadeOut = true
     }
 
-    // tempo da tela de vitória
-    if (mostrandoVitoria && !playersSaindo) {
-        tempoVitoria++
-
-        if (tempoVitoria > 120) { // ~2 segundos
-            playersSaindo = true
-        }
-    }
-
-    // players saindo
-    if (playersSaindo && !fadeOut) {
-        player.x += 5
-        player2.x += 5
-
-        if (player.x > canvas.width && player2.x > canvas.width) {
-            fadeOut = true
-            fadeFrame = fadeFrames - 1 // começa do final
-        }
-    }
-
-    // fade reverso
     if (fadeOut) {
         fadeTimer++
+
         if (fadeTimer > fadeSpeed) {
             fadeTimer = 0
             fadeFrame--
@@ -327,7 +292,6 @@ function atualizaFimDeFase() {
 
         if (fadeFrame <= 0) {
             proximaFase()
-            travarPlayers = false
         }
     }
 }
@@ -336,8 +300,8 @@ function desenharFadeOut() {
     if (estado === 'finalFase') {
 
         if (mostrandoVitoria) {
-            let w = 300
-            let h = 150
+            let w = 550
+            let h = 160
 
             des.drawImage(
                 imgVitoria,
@@ -348,7 +312,6 @@ function desenharFadeOut() {
             )
         }
 
-        // fade reverso
         if (fadeOut) {
             let frameW = fadeSprite.width / fadeFrames
 
@@ -368,7 +331,6 @@ function proximaFase() {
 
     fimDeFase = false
     mostrandoVitoria = false
-    playersSaindo = false
     fadeOut = false
 
     balas = []
@@ -443,10 +405,10 @@ function trocar_Background() {
 }
 
 function ver_fase() {
-    if ((player.pontos + player2.pontos) > 200 && fase === 1 && !fimDeFase) {
+    if ((player.pontos + player2.pontos) > 200 && fase === 1 ) {
         iniciarFimDeFase(2)
     }
-    else if ((player.pontos + player2.pontos) > 400 && fase === 2 && !fimDeFase) {
+    else if ((player.pontos + player2.pontos) > 400 && fase === 2) {
         iniciarFimDeFase(3)
     }
 }
@@ -456,7 +418,7 @@ function colisao() {
     // Player 1
     inimigos.forEach(inimigo => {
 
-        if (player.colid(inimigo) && player.vida > 0) {
+        if (!inimigo.morto && player.colid(inimigo) && player.vida > 0) {
             inimigo.recomeca()
             player.vida -= 1
         }
@@ -464,7 +426,7 @@ function colisao() {
 
     // Player 2
     inimigos.forEach(inimigo => {
-        if (player2.colid(inimigo) && player2.vida > 0) {
+        if (!inimigo.morto && player2.colid(inimigo) && player2.vida > 0) {
             inimigo.recomeca()
             player2.vida -= 1
         }
@@ -532,9 +494,10 @@ function desenha() {
         bg1.draw()
 
         inimigos.forEach(inimigo => {
-            inimigo.des_player()
+            if (!inimigo.morto) {
+                inimigo.des_player()
+            }
         })
-
 
         if (player.vida > 0) { player.des_player() }
         if (player2.vida > 0) { player2.des_player() }
@@ -560,6 +523,12 @@ function desenha() {
 
 //ATUALIZAÇÂO DO JOGO --------------------------------
 function atualiza() {
+
+    if (estado === 'finalFase') {
+        atualizaFimDeFase()
+        return
+    }
+
     if (estado === 'jogando') {
         bg1.mov()
         bg2.mov()
@@ -588,7 +557,6 @@ function atualiza() {
             }
         })
 
-
         player2.anim('renato_0', 1, 7)
         player.anim('guto_0', 6, 3)
 
@@ -596,65 +564,24 @@ function atualiza() {
             inimigo.anim('bolacha_0', 3, 3)
         })
 
-
-
         atualizarBalas()
         atualizarEspada()
 
         inimigos.forEach(inimigo => {
-            inimigo.mov_car()
+            if (!inimigo.morto) {
+                inimigo.mov_car()
+            }
         })
 
         colisao()
         ver_fase()
         game_over()
-    } else if (fimDeFase) {
-
-        if (!travarPlayers) {
-
-            bg1.mov()
-            bg2.mov()
-            bg3.mov()
-
-            let limiteCima = bg1.y
-            let limiteBaixo = bg1.y + bg1.h - player.h
-            let limiteEsq = 0
-            let limiteDir = canvas.width
-
-            controlarAtaques()
-
-            if (player.vida > 0) {
-                player.mov_player(limiteCima, limiteBaixo, limiteEsq, limiteDir)
-            }
-
-            if (player2.vida > 0) {
-                player2.mov_player(limiteCima, limiteBaixo, limiteEsq, limiteDir)
-            }
-
-            
-            inimigos.forEach(inimigo => {
-                inimigo.anim('bolacha_0', 3, 3)
-            })
-
-            atualizarBalas()
-            atualizarEspada()
-
-            colisao()
-            game_over()
-
-            if (player.cooldown > 0) player.cooldown--
-            if (player2.cooldown > 0) player2.cooldown--
-        }
-
-        atualizaFimDeFase()
-        return
     }
 }
 
 //LOOP PRINCIPAL --------------------------------
 function main() {
     des.clearRect(0, 0, canvas.width, canvas.height)
-
     controlarPlayers()
 
     if (estado === 'transicao') {

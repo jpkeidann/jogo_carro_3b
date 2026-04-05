@@ -1,0 +1,371 @@
+:root {
+    --yellow: #f5c542;
+    --red: #e84040;
+    --cyan: #00cfff;
+    --white: #f0f0f0;
+    --dark: #0a0a0f;
+    --panel-bg: rgba(10, 10, 20, 0.85);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--dark);
+    font-family: 'Press Start 2P', monospace;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    cursor: default;
+}
+
+/* ── BACKGROUND IMAGE ── */
+#bg {
+    position: fixed;
+    inset: 0;
+    background: url('./img/background1.png') center center / cover no-repeat;
+    /* Troque o src acima pela imagem desejada */
+    z-index: 0;
+}
+
+/* dark overlay for readability */
+#bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.45) 0%,
+            rgba(0, 0, 0, 0.25) 50%,
+            rgba(0, 0, 0, 0.65) 100%);
+}
+
+/* scanlines effect */
+#scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom,
+            transparent,
+            transparent 3px,
+            rgba(0, 0, 0, 0.12) 3px,
+            rgba(0, 0, 0, 0.12) 4px);
+}
+
+/* ── MAIN CONTAINER ── */
+#menu {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+}
+
+/* ── TITLE ── */
+#title-block {
+    text-align: center;
+    margin-bottom: 52px;
+    animation: fadeDown 0.7s ease both;
+}
+
+#title-block h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(28px, 5vw, 52px);
+    color: var(--yellow);
+    text-shadow:
+        4px 4px 0 #b8860b,
+        0 0 24px rgba(245, 197, 66, 0.55),
+        0 0 60px rgba(245, 197, 66, 0.25);
+    letter-spacing: 4px;
+    line-height: 1.4;
+}
+
+#title-block .subtitle {
+    font-family: 'VT323', monospace;
+    font-size: clamp(18px, 2.5vw, 26px);
+    color: var(--cyan);
+    letter-spacing: 6px;
+    margin-top: 10px;
+    opacity: 0.85;
+    text-shadow: 0 0 12px rgba(0, 207, 255, 0.5);
+}
+
+/* ── BUTTONS ── */
+#buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+}
+
+.btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(12px, 1.8vw, 16px);
+    letter-spacing: 3px;
+    padding: 16px 48px;
+    border: 3px solid;
+    background: var(--panel-bg);
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.08s, box-shadow 0.15s;
+    text-decoration: none;
+    display: inline-block;
+    min-width: 240px;
+    text-align: center;
+    animation: fadeUp 0.6s ease both;
+}
+
+.btn::before {
+    content: '▶';
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.btn:hover::before {
+    opacity: 1;
+}
+
+.btn:hover {
+    transform: scale(1.06) translateX(4px);
+}
+
+.btn:active {
+    transform: scale(0.97) translateX(2px);
+}
+
+/* Jogar */
+.btn-jogar {
+    color: var(--yellow);
+    border-color: var(--yellow);
+    box-shadow: 4px 4px 0 #b8860b, 0 0 18px rgba(245, 197, 66, 0.2);
+    animation-delay: 0.1s;
+}
+
+.btn-jogar:hover {
+    background: rgba(245, 197, 66, 0.15);
+    box-shadow: 6px 6px 0 #b8860b, 0 0 30px rgba(245, 197, 66, 0.35);
+}
+
+/* Manual */
+.btn-manual {
+    color: var(--cyan);
+    border-color: var(--cyan);
+    box-shadow: 4px 4px 0 #006b8a, 0 0 18px rgba(0, 207, 255, 0.15);
+    animation-delay: 0.22s;
+}
+
+.btn-manual:hover {
+    background: rgba(0, 207, 255, 0.12);
+    box-shadow: 6px 6px 0 #006b8a, 0 0 28px rgba(0, 207, 255, 0.3);
+}
+
+/* Sobre */
+.btn-sobre {
+    color: #b0ffb0;
+    border-color: #4cff4c;
+    box-shadow: 4px 4px 0 #1a7a1a, 0 0 18px rgba(76, 255, 76, 0.15);
+    animation-delay: 0.34s;
+}
+
+.btn-sobre:hover {
+    background: rgba(76, 255, 76, 0.1);
+    box-shadow: 6px 6px 0 #1a7a1a, 0 0 28px rgba(76, 255, 76, 0.3);
+}
+
+/* ── MODAL BASE ── */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.modal-box {
+    background: #0d0d1a;
+    border: 3px solid;
+    padding: 36px 40px;
+    max-width: 560px;
+    width: 90%;
+    position: relative;
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.8);
+    animation: popIn 0.2s ease;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-box::-webkit-scrollbar-track {
+    background: #111;
+}
+
+.modal-box::-webkit-scrollbar-thumb {
+    background: #444;
+}
+
+/* Manual modal */
+#modal-manual .modal-box {
+    border-color: var(--cyan);
+    box-shadow: 8px 8px 0 #006b8a;
+}
+
+#modal-manual h2 {
+    font-size: 14px;
+    color: var(--cyan);
+    margin-bottom: 24px;
+    text-shadow: 0 0 12px rgba(0, 207, 255, 0.5);
+}
+
+#modal-manual .modal-content {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: #c8e8ff;
+    line-height: 1.7;
+}
+
+/* Sobre modal */
+#modal-sobre .modal-box {
+    border-color: #4cff4c;
+    box-shadow: 8px 8px 0 #1a7a1a;
+}
+
+#modal-sobre h2 {
+    font-size: 14px;
+    color: #4cff4c;
+    margin-bottom: 24px;
+    text-shadow: 0 0 12px rgba(76, 255, 76, 0.5);
+}
+
+#modal-sobre .modal-content {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: #c8ffcc;
+    line-height: 1.8;
+}
+
+.modal-content .label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    opacity: 0.65;
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 2px;
+}
+
+.modal-content .value {
+    color: var(--white);
+    font-size: 24px;
+}
+
+/* close button */
+.btn-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: none;
+    border: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: opacity 0.15s;
+}
+
+#modal-manual .btn-close {
+    color: var(--cyan);
+}
+
+#modal-sobre .btn-close {
+    color: #4cff4c;
+}
+
+.btn-close:hover {
+    opacity: 0.6;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.88);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* pixel cursor on buttons */
+.btn,
+.btn-close {
+    image-rendering: pixelated;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}

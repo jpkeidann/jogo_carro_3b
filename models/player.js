@@ -4,6 +4,10 @@ class Obj {
         this.y = y
         this.w = w
         this.h = h
+
+        this.img = new Image()
+        this.img.src = a
+
         this.a = a
 
         this.hitbox = {
@@ -16,9 +20,11 @@ class Obj {
 
 
     des_player() {
-        let img = new Image()
-        img.src = this.a
-        des.drawImage(img, this.x, this.y, this.w, this.h)
+        if (this.img.src !== this.a) {
+            this.img.src = this.a
+        }
+
+        des.drawImage(this.img, this.x, this.y, this.w, this.h)
     }
 
     des_quad() {
@@ -119,6 +125,7 @@ class Inimigo extends Obj {
     hitTimer = 2 // tempo piscando
 
     invencivel = 0
+    morto = false
 
     recomeca() {
         this.x = canvas.width + Math.random() * 300
@@ -129,13 +136,13 @@ class Inimigo extends Obj {
     }
 
     levarDano(dano = 1) {
-
         this.vida -= dano
         this.hitTimer = 2
         this.invencivel = 15
         this.x += 20
 
         if (this.vida <= 0) {
+
             this.recomeca()
             this.vida = this.vidaMax
         }

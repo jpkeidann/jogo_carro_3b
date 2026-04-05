@@ -1,11 +1,104 @@
 <!DOCTYPE html>
-<html lang="pt_BR">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    
 </head>
 <body>
-    <a href="./jogo.html">iniciar jogo</a>
+
+    <!-- Background image-->
+    <div id="bg"></div>
+    <div id="scanlines"></div>
+
+    <!-- Main Menu -->
+    <div id="menu">
+        <div id="title-block">
+            <h1>Cats'N Cookies RUN!</h1>
+        </div>
+
+        <div id="buttons">
+            <a href="./jogo.html" class="btn btn-jogar">JOGAR</a>
+            <button class="btn btn-manual" onclick="abrirModal('modal-manual')">MANUAL</button>
+            <button class="btn btn-sobre"  onclick="abrirModal('modal-sobre')">SOBRE</button>
+        </div>
+    </div>
+
+    <!-- ── MODAL MANUAL ── -->
+    <div id="modal-manual" class="modal-overlay" onclick="fecharModalFora(event, this)">
+        <div class="modal-box">
+            <button class="btn-close" onclick="fecharModal('modal-manual')">[ X ]</button>
+            <h2>MANUAL DO JOGO:</h2>
+            <div class="modal-content">
+                <span class="label">CONTROLES — JOGADOR 1</span>
+                <span class="value">W A S D → mover<br>ESPAÇO → atirar</span>
+
+                <span class="label">CONTROLES — JOGADOR 2</span>
+                <span class="value">↑ ↓ ← → → mover<br>ENTER → atacar</span>
+
+                <span class="label">OBJETIVO</span>
+                <span class="value">O objetivo dos jogadores é derrotar todos os inimigos para conseguir alcançar o renato reverso e recuperar a bolacha lendária!
+                    E de preferência, não morrer no caminho...
+                </span>
+
+                <span class="label">DICAS</span>
+                <span class="value">Ao matar bolachas, você consegue pontos, e quanto mais pontos, mais que você avança no jogo.
+                    O guto (gato) usa uma arma a laser, portanto, ele é projetado para atacar a distância, enquanto isso, o renato (o pato), ataca com uma espada, fazendo ele um personagem de curta distância.
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MODAL SOBRE ── -->
+    <div id="modal-sobre" class="modal-overlay" onclick="fecharModalFora(event, this)">
+        <div class="modal-box">
+            <button class="btn-close" onclick="fecharModal('modal-sobre')">[ X ]</button>
+            <h2>💻 SOBRE</h2>
+            <div class="modal-content">
+                <!-- ✏️ Preencha os dados abaixo -->
+                <span class="label">DESENVOLVEDOR</span>
+                <span class="value">João Pedro Keidann</span>
+
+                <span class="label">CONTATO</span>
+                <span class="value">joao_keidann@estudante.sesisenai.org.br</span>
+
+                <span class="label">GITHUB / REDES</span>
+                <span class="value">https://github.com/jpkeidann</span>
+
+                <span class="label">PRODUCT OWNER</span>
+                <span class="value">Carlos Roberto Da Silva Filho</span>
+
+                <span class="label">VERSÃO</span>
+                <span class="value">v1.0.0 — 2026</span>
+                <!-- ✏️ Fim dos dados -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function abrirModal(id) {
+            document.getElementById(id).classList.add('open')
+        }
+
+        function fecharModal(id) {
+            document.getElementById(id).classList.remove('open')
+        }
+
+        function fecharModalFora(event, overlay) {
+            if (event.target === overlay) {
+                overlay.classList.remove('open')
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            // Fecha modal com ESC
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'))
+            }
+        })
+    </script>
 </body>
 </html>
