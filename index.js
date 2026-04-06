@@ -327,6 +327,11 @@ function desenharFadeOut() {
 }
 
 function proximaFase() {
+    if (faseDestino === 4) {   // <- NOVO
+        estado = 'vitoria'
+        return
+    }
+
     fase = faseDestino
 
     fimDeFase = false
@@ -405,11 +410,14 @@ function trocar_Background() {
 }
 
 function ver_fase() {
-    if ((player.pontos + player2.pontos) > 200 && fase === 1 ) {
+    if ((player.pontos + player2.pontos) > 200 && fase === 1) {
         iniciarFimDeFase(2)
     }
     else if ((player.pontos + player2.pontos) > 400 && fase === 2) {
         iniciarFimDeFase(3)
+    }
+    else if ((player.pontos + player2.pontos) > 600 && fase === 3) {
+        iniciarFimDeFase(4) // 4 = vitória
     }
 }
 
@@ -515,9 +523,7 @@ function desenha() {
 
         desenharFadeOut()
     } else {
-        t1.des_text('GAME OVER', 420, 300, 'yellow', '60px Arial')
-        t3.des_text('P1: ' + player.pontos + ' pts', 430, 420, 'red', '25px Arial')
-        t4.des_text('P2: ' + player2.pontos + ' pts', 430, 455, '#00cfff', '25px Arial')
+        desenharTelaFim('GAME OVER', '#e84040')
     }
 }
 
@@ -579,6 +585,78 @@ function atualiza() {
     }
 }
 
+// ── TELAS DE FIM ──────────────────────────────────────
+let imgFundo_fim = new Image()
+imgFundo_fim.src = './img/background1.png' // troque pela imagem desejada
+
+let botoesAtivos = []
+
+canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect()
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width)
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height)
+
+    botoesAtivos.forEach(btn => {
+        if (mx >= btn.x && mx <= btn.x + btn.w && my >= btn.y && my <= btn.y + btn.h) {
+            btn.acao()
+        }
+    })
+})
+
+function desenharTelaFim(titulo, corTitulo) {
+    botoesAtivos = []
+
+    // fundo
+    des.drawImage(imgFundo_fim, 0, 0, canvas.width, canvas.height)
+
+    // overlay escuro
+    des.fillStyle = 'rgba(0,0,0,0.55)'
+    des.fillRect(0, 0, canvas.width, canvas.height)
+
+    // título
+    des.font = 'bold 72px "Press Start 2P", monospace'
+    des.fillStyle = corTitulo
+    des.textAlign = 'center'
+    des.shadowColor = corTitulo
+    des.shadowBlur = 30
+    des.fillText(titulo, canvas.width / 2, canvas.height / 2 - 80)
+    des.shadowBlur = 0
+
+    // botões
+    const btnW = 320
+    const btnH = 60
+    const btnX = canvas.width / 2 - btnW / 2
+    const btn1Y = canvas.height / 2 + 20
+    const btn2Y = canvas.height / 2 + 110
+
+    function desenharBotao(label, corBorda, corTexto, x, y) {
+        des.fillStyle = 'rgba(10,10,20,0.85)'
+        des.strokeStyle = corBorda
+        des.lineWidth = 3
+        des.fillRect(x, y, btnW, btnH)
+        des.strokeRect(x, y, btnW, btnH)
+
+        des.font = '14px "Press Start 2P", monospace'
+        des.fillStyle = corTexto
+        des.textAlign = 'center'
+        des.fillText(label, x + btnW / 2, y + btnH / 2 + 5)
+    }
+
+    desenharBotao('TENTAR NOVAMENTE', '#f5c542', '#f5c542', btnX, btn1Y)
+    desenharBotao('MENU PRINCIPAL', '#00cfff', '#00cfff', btnX, btn2Y)
+
+    botoesAtivos.push({
+        x: btnX, y: btn1Y, w: btnW, h: btnH,
+        acao: () => location.reload()
+    })
+    botoesAtivos.push({
+        x: btnX, y: btn2Y, w: btnW, h: btnH,
+        acao: () => location.href = './index.html'
+    })
+
+    des.textAlign = 'left'
+}
+
 //LOOP PRINCIPAL --------------------------------
 function main() {
     des.clearRect(0, 0, canvas.width, canvas.height)
@@ -587,6 +665,8 @@ function main() {
     if (estado === 'transicao') {
         desenhaTransicao()
         animacaoTransicao()
+    } else if (estado === 'vitoria') {   // <- NOVO
+        desenharTelaFim('VOCÊ VENCEU!', '#f5c542')
     } else {
         desenha()
         atualiza()
