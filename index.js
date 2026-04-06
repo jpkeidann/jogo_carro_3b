@@ -513,13 +513,13 @@ function desenha() {
         balas.forEach(b => b.draw())
         ataques.forEach(a => a.draw())
 
-        t2.des_text('P1 Vidas: ' + player.vida, 40, 40, 'red', '26px Arial')
-        t1.des_text('P1 Pontos: ' + player.pontos, 40, 70, 'yellow', '22px Arial')
+        t2.des_text('P1 Vidas: ' + player.vida, canvas.width * 0.05, canvas.height * 0.1, 'red', '36px "fonteCatsNCookies"', 'black', 5)
+        t1.des_text('P1 Pontos: ' + player.pontos, canvas.width * 0.05, canvas.height * 0.15, 'yellow', '36px "fonteCatsNCookies"', 'black', 5)
 
-        t3.des_text('P2 Vidas: ' + player2.vida, 900, 40, '#00cfff', '26px Arial')
-        t4.des_text('P2 Pontos: ' + player2.pontos, 900, 70, 'lime', '22px Arial')
+        t3.des_text('P2 Vidas: ' + player2.vida, canvas.width * 0.85, canvas.height * 0.1, 'red', '36px "fonteCatsNCookies"', 'black', 5)
+        t4.des_text('P2 Pontos: ' + player2.pontos, canvas.width * 0.85, canvas.height * 0.15, 'yellow', '36px "fonteCatsNCookies"', 'black', 5)
 
-        fase_txt.des_text('Fase: ' + fase, 550, 40, 'white', '26px Arial')
+        fase_txt.des_text('Fase: ' + fase, canvas.width * 0.45, canvas.height * 0.1, 'white', '36px "fonteCatsNCookies"', 'black', 5)
 
         desenharFadeOut()
     } else {

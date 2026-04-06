@@ -183,10 +183,19 @@ class Inimigo extends Obj {
 }
 
 class Text {
-    des_text(text, x, y, cor, font) {
-        des.fillStyle = cor
-        des.lineWidth = '5'
+    des_text(text, x, y, cor, font, corBorda = 'black', larguraBorda = 2) {
         des.font = font
+        des.fillStyle = cor
+        
+        des.strokeStyle = corBorda
+        des.lineWidth = larguraBorda
+        des.lineJoin = "round" // Suaviza os cantos da borda
+        des.miterLimit = 2
+        
+        // Desenha o contorno primeiro
+        des.strokeText(text, x, y)
+        
+        // Desenha o preenchimento por cima
         des.fillText(text, x, y)
     }
 }
