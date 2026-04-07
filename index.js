@@ -111,6 +111,7 @@ somDerrota.volume = 0.5
 let balas = []
 let ataques = []
 let inimigos = [inimigo, inimigo2, inimigo3]
+let coracoes = []
 
 //INTRO ------------------------------------------
 
@@ -362,6 +363,7 @@ function proximaFase() {
 
     balas = []
     ataques = []
+    coracoes = []
 
     inimigos.forEach(inimigo => {
         inimigo.recomeca = Inimigo.prototype.recomeca // restaura função
@@ -473,7 +475,6 @@ function colisao() {
 function atualizarBalas() {
     balas.forEach((bala) => {
         bala.mov()
-
         inimigos.forEach(inimigo => {
             if (bala.colid(inimigo) && inimigo.invencivel === 0) {
                 inimigo.levarDano(1)
@@ -528,12 +529,39 @@ function controlarAtaques() {
     }
 }
 
+// CORAÇÔES ----------------------------------------
+function controlarCoracao() {
+    // spawn de coração a cada ~1200 frames
+    if (Math.random() < 1 / 1200) {
+        let yAleatorio = bg1.y + Math.random() * (bg1.h - 64)
+        coracoes.push(new Coracao(canvas.width + 50, yAleatorio, 48, 48, './img/coracao.png'))
+    }
+
+    coracoes.forEach(c => c.mov())
+
+    // colisão do coração com os players
+    coracoes.forEach(c => {
+        if (c.ativa && player.colid(c) && player.vida < 3) {
+            player.vida += 1
+            c.ativa = false
+        }
+        if (c.ativa && player2.colid(c) && player2.vida < 3) {
+            player2.vida += 1
+            c.ativa = false
+        }
+    })
+
+    coracoes = coracoes.filter(c => c.ativa)
+}
+
 //DESENHO DA TELA --------------------------------
 function desenha() {
     if (jogar) {
         bg2.draw()
         bg3.draw()
         bg1.draw()
+
+        coracoes.forEach(c => c.des_player())
 
         inimigos.forEach(inimigo => {
             if (!inimigo.morto) {
@@ -613,6 +641,7 @@ function atualiza() {
             }
         })
 
+        controlarCoracao()
         colisao()
         ver_fase()
         game_over()
