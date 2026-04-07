@@ -5,10 +5,9 @@
 **Título do Projeto:**
 Cats'N Cookies RUN!
 
-** Desenvolvedor:**  
+**Desenvolvedor:**  
 João Pedro Keidann
 
-** Logotipo / Banner:**  
 ![Banner do Jogo](./img/background1.png)
 
 ---
