@@ -89,8 +89,23 @@ let t4 = new Text()
 let fase_txt = new Text()
 
 
-r = new Audio('./img/motor.wav')
+// ── MÚSICA DO JOGO ──
+const musicaJogo = new Audio('./audios/musica_jogo.mp3')
+musicaJogo.loop = true
+musicaJogo.volume = 0.5
+musicaJogo.play().catch(() => {
+    // Navegadores bloqueiam áudio sem interação; inicia no primeiro input
+    document.addEventListener('keydown', () => {
+        if (musicaJogo.paused) musicaJogo.play()
+    }, { once: true })
+})
 
+// ── SONS DE FIM DE JOGO ──
+const somVitoria = new Audio('./audios/fim.mp3')
+somVitoria.volume = 0.5
+
+const somDerrota = new Audio('./audios/som_derrota.mp3')
+somDerrota.volume = 0.5
 
 // ARRAYS ------------------------------------------
 let balas = []
@@ -266,6 +281,10 @@ imgVitoria.src = './img/vitoria.png'
 function iniciarFimDeFase(proximaFase) {
     estado = 'finalFase'
 
+    const finalFase = new Audio('./audios/level_complete.mp3')
+    finalFase.volume = 0.5;
+    finalFase.play()
+
     faseDestino = proximaFase
 
     mostrandoVitoria = true
@@ -327,7 +346,10 @@ function desenharFadeOut() {
 }
 
 function proximaFase() {
-    if (faseDestino === 4) {   // <- NOVO
+    if (faseDestino === 4) {
+        musicaJogo.pause()
+        musicaJogo.currentTime = 0
+        somVitoria.play()
         estado = 'vitoria'
         return
     }
@@ -364,7 +386,6 @@ let fase = 1
 
 let velocidadeCar = 1
 
-
 document.addEventListener('keydown', (e) => {
     keys[e.key] = true
 })
@@ -397,9 +418,15 @@ function controlarPlayers() {
 //CONTROLADOR DE MORTE ------------------------------
 function game_over() {
     if (player.vida <= 0 && player2.vida <= 0) {
+        if (jogar) { // evita tocar múltiplas vezes
+            musicaJogo.pause()
+            musicaJogo.currentTime = 0
+            somDerrota.play()
+        }
         jogar = false
     }
 }
+
 
 //CONTROLADOR DE FASES --------------------------------
 function trocar_Background() {
@@ -480,6 +507,10 @@ function controlarAtaques() {
     if (keys[' '] && player.cooldown === 0 && player.vida > 0) {
         balas.push(new Bala(player.x + player.w, player.y + 40))
         player.cooldown = player.cooldownMax
+        const atirar = new Audio('./audios/shooting.mp3')
+        atirar.volume = 0.5;
+        atirar.play()
+
     }
 
     // Player 2 (espada)
@@ -491,6 +522,9 @@ function controlarAtaques() {
         ataques.push(atk)
 
         player2.cooldown = player2.cooldownMax
+        const espada = new Audio('./audios/slash.mp3')
+        espada.volume = 0.1;
+        espada.play()
     }
 }
 
@@ -587,7 +621,7 @@ function atualiza() {
 
 // ── TELAS DE FIM ──────────────────────────────────────
 let imgFundo_fim = new Image()
-imgFundo_fim.src = './img/background1.png' // troque pela imagem desejada
+imgFundo_fim.src = './img/background1.png'
 
 let botoesAtivos = []
 
@@ -665,7 +699,7 @@ function main() {
     if (estado === 'transicao') {
         desenhaTransicao()
         animacaoTransicao()
-    } else if (estado === 'vitoria') {   // <- NOVO
+    } else if (estado === 'vitoria') {
         desenharTelaFim('VOCÊ VENCEU!', '#f5c542')
     } else {
         desenha()

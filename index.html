@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="index.css">
-    
+
 </head>
+
 <body>
 
     <!-- Background image-->
@@ -23,7 +26,7 @@
         <div id="buttons">
             <a href="./jogo.html" class="btn btn-jogar">JOGAR</a>
             <button class="btn btn-manual" onclick="abrirModal('modal-manual')">MANUAL</button>
-            <button class="btn btn-sobre"  onclick="abrirModal('modal-sobre')">SOBRE</button>
+            <button class="btn btn-sobre" onclick="abrirModal('modal-sobre')">SOBRE</button>
         </div>
     </div>
 
@@ -40,13 +43,16 @@
                 <span class="value">↑ ↓ ← → → mover<br>ENTER → atacar</span>
 
                 <span class="label">OBJETIVO</span>
-                <span class="value">O objetivo dos jogadores é derrotar todos os inimigos para conseguir alcançar o renato reverso e recuperar a bolacha lendária!
+                <span class="value">O objetivo dos jogadores é derrotar todos os inimigos para conseguir alcançar o
+                    renato reverso e recuperar a bolacha lendária!
                     E de preferência, não morrer no caminho...
                 </span>
 
                 <span class="label">DICAS</span>
-                <span class="value">Ao matar bolachas, você consegue pontos, e quanto mais pontos, mais que você avança no jogo.
-                    O guto (gato) usa uma arma a laser, portanto, ele é projetado para atacar a distância, enquanto isso, o renato (o pato), ataca com uma espada, fazendo ele um personagem de curta distância.
+                <span class="value">Ao matar bolachas, você consegue pontos, e quanto mais pontos, mais que você avança
+                    no jogo.
+                    O guto (gato) usa uma arma a laser, portanto, ele é projetado para atacar a distância, enquanto
+                    isso, o renato (o pato), ataca com uma espada, fazendo ele um personagem de curta distância.
                 </span>
             </div>
         </div>
@@ -99,6 +105,17 @@
                 document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'))
             }
         })
+
+        // ── MÚSICA DO MENU ──
+        const musicaMenu = new Audio('./audios/musica_menu.mp3') // 🎵 troque pelo caminho da sua música
+        musicaMenu.loop = true
+        musicaMenu.volume = 0.5
+
+        // Inicia ao primeiro clique do usuário (obrigatório pelos navegadores)
+        document.addEventListener('click', () => {
+            if (musicaMenu.paused) musicaMenu.play()
+        }, { once: true })
     </script>
 </body>
+
 </html>
